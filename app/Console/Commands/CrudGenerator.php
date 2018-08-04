@@ -20,6 +20,7 @@ class CrudGenerator extends Command
      * @var string
      */
     protected $description = 'Create CRUD Operations';
+    protected $isIndo = false;
 
     /**
      * Create a new command instance.
@@ -66,12 +67,14 @@ class CrudGenerator extends Command
             [
                 '{{modelName}}',
                 '{{modelNamePluralLowerCase}}',
-                '{{modelNameSingularLowerCase}}'
+                '{{modelNameSingularLowerCase}}',
+                '{{modelNamePluralUpperCaseFirstLetter}}',
             ],
             [
                 $name,
                 strtolower(str_plural($name)),
-                strtolower($name)
+                strtolower($name),
+                ucfirst(str_plural($name)),
             ],
             $this->getStub('Controller')
         );
@@ -81,9 +84,12 @@ class CrudGenerator extends Command
 
     protected function views($name){
         $columns = \DB::select('SHOW COLUMNS FROM '.strtolower(str_plural($name)));
-        $tableHeadingHtml = '';
+        $tableHeadingHtml = '<th><input type="checkbox" id="checkAll"></th>';
         $tableBodyHtml = '';
         $formAddHtml = '';
+        $formEditHtml = '';
+
+        $tableShowDataHtml = '<table class="table table-striped">';
         foreach($columns as $key => $column){
             if(!in_array($column->Field,['updated_at','deleted_at'])){
 
@@ -94,7 +100,12 @@ class CrudGenerator extends Command
                     $tableBodyHtml .= '<td>{{$'.strtolower($name).'->'.$column->Field.'->format("d M Y")}}</td>
                 ';
                 } else{
-
+                    $tableShowDataHtml .= '
+                    <tr>                        
+                        <td>'.$column->Field.'</td>
+                        <td>{{$'.strtolower($name).'->'.$column->Field.'}}</td>
+                        </tr>
+                    ';
                     $tableBodyHtml .= '<td>{{$'.strtolower($name).'->'.$column->Field.'}}</td>
                     ';
                 }
@@ -111,20 +122,41 @@ class CrudGenerator extends Command
                     </div>
                     ';
                 }
+
+                if(!in_array($column->Field,['id','created_at','updated_at','deleted_at'])){
+                   $formEditHtml .= '<div class="form-group{{$errors->has("'.$column->Field.'") ? " has-error" : ""}}">
+                      {!!Form::label("'.$column->Field.'","'.ucfirst($column->Field).'",["class" => "col-sm-2 control-label"])!!}
+                      <div class="col-sm-10">
+                        {!!Form::text("'.$column->Field.'",$'.strtolower($name).'->'.$column->Field.',["class" => "form-control","placeholder" => "'.ucfirst($column->Field).'"])!!}
+                        @if($errors->has("'.$column->Field.'"))
+                          <span class="help-block">{{$errors->first("'.$column->Field.'")}}</span>
+                        @endif
+                      </div>
+                    </div>
+                    ';
+                }
             }
         }
         $tableHeadingHtml .= '<th style="width:10%;">Actions</th>
         ';
 
         $tableBodyHtml .= '<td>
-                <a class="btn btn-xs btn-white" href="{{route("'.strtolower(str_plural($name)).'.show",$'.strtolower($name).')}}" data-toggle="tooltip" data-placement="top" title="View"><i class="fa fa-eye"></i>
+                
+                <form action="{{route(\''.strtolower(str_plural($name)).'.destroy\',$'.strtolower($name).')}}" method="post">
+                    <a class="btn btn-xs btn-white" href="{{route("'.strtolower(str_plural($name)).'.show",$'.strtolower($name).')}}" data-toggle="tooltip" data-placement="top" title="View"><i class="fa fa-eye"></i>
                 </a>
 
                 <a class="btn btn-xs btn-warning" href="{{route("'.strtolower(str_plural($name)).'.edit",$'.strtolower($name).')}}" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fa fa-edit"></i>
                 </a>
-                <a class="btn btn-xs btn-danger" href="{{route("'.strtolower(str_plural($name)).'.destroy",$'.strtolower($name).')}}" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fa fa-trash"></i>
-                </a>
+                    {!! method_field(\'delete\') !!}                    
+                    {!! csrf_field() !!}
+                    <button type="submit" value="Delete" class="btn btn-xs btn-danger" id="'.strtolower($name).'Delete"><i class="fa fa-trash"></i></button>
+                    
+                </form>                
             </td>';
+
+        $tableShowDataHtml .= '</table>';
+
         $viewCreateTemplate = str_replace(
             [
                 '{{modelName}}',
@@ -134,7 +166,7 @@ class CrudGenerator extends Command
                 '{{modelNameSingularUpperCaseFirstLetter}}',
                 '{{tableHeadingHtml}}',
                 '{{tableBodyHtml}}',
-                '{{formAddHtml}}',
+                '{{formAddHtml}}',                
             ],
             [
                 $name,
@@ -144,15 +176,58 @@ class CrudGenerator extends Command
                 ucfirst($name),
                 $tableHeadingHtml,
                 $tableBodyHtml,
-                $formAddHtml,
+                $formAddHtml,                
             ],
             file_get_contents(resource_path("/stubs/views/index.stub"))
         );
+
+        $showCreateTemplate = str_replace(
+            [
+                '{{modelName}}',
+                '{{modelNamePluralUpperCaseFirstLetter}}',
+                '{{modelNamePluralLowerCase}}',
+                '{{modelNameSingularLowerCase}}',
+                '{{modelNameSingularUpperCaseFirstLetter}}',                
+                '{{tableShowDataHtml}}'
+            ],
+            [
+                $name,
+                ucfirst(str_plural($name)),
+                strtolower(str_plural($name)),
+                strtolower($name),
+                ucfirst($name),                
+                $tableShowDataHtml,
+            ],
+            file_get_contents(resource_path("/stubs/views/show.stub"))
+        );
+
+        $editCreateTemplate = str_replace(
+            [
+                '{{modelName}}',
+                '{{modelNamePluralUpperCaseFirstLetter}}',
+                '{{modelNamePluralLowerCase}}',
+                '{{modelNameSingularLowerCase}}',
+                '{{modelNameSingularUpperCaseFirstLetter}}',                
+                '{{formEditHtml}}'
+            ],
+            [
+                $name,
+                ucfirst(str_plural($name)),
+                strtolower(str_plural($name)),
+                strtolower($name),
+                ucfirst($name),                
+                $formEditHtml,
+            ],
+            file_get_contents(resource_path("/stubs/views/edit.stub"))
+        );
+
 
          if(!file_exists($path = resource_path('/views/'.strtolower(str_plural($name)))))
             mkdir($path, 0777, true);
 
         file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/index.blade.php"),$viewCreateTemplate);
+        file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/show.blade.php"),$showCreateTemplate);
+        file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/edit.blade.php"),$editCreateTemplate);
     }
 
     protected function request($name){
@@ -170,13 +245,15 @@ class CrudGenerator extends Command
 
     public function handle()
     {
-        $name = $this->argument('name');
-
         $this->controller($name);
         $this->views($name);
         $this->model($name);
         $this->request($name);
 
-        \File::append(base_path('routes/web.php'), 'Route::resource(\'' . str_plural(strtolower($name)) . "', '{$name}Controller');");
+        \File::append(base_path('routes/web.php'), '
+Route::delete(\'' . str_plural(strtolower($name)) . "/deleteAll', '{$name}Controller@deleteAll')->name('".str_plural(strtolower($name)).".deleteAll');");
+        \File::append(base_path('routes/web.php'), '
+Route::resource(\'' . str_plural(strtolower($name))."', '{$name}Controller');");
+        
     }
 }

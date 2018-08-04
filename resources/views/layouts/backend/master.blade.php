@@ -15,6 +15,9 @@
 
     <link href="{{asset('assets/backend')}}/css/animate.css" rel="stylesheet">
     <link href="{{asset('assets/backend')}}/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="{!!url('assets/backend')!!}/css/plugins/sweetalert/sweetalert.css">
+    <link href="{{asset('assets/backend')}}/css/plugins/toastr/toastr.min.css" rel="stylesheet">
+
 
 </head>
 
@@ -165,11 +168,30 @@
     <script src="{{asset('assets/backend')}}/js/bootstrap.min.js"></script>
     <script src="{{asset('assets/backend')}}/js/plugins/metisMenu/jquery.metisMenu.js"></script>
     <script src="{{asset('assets/backend')}}/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="{!!url('assets/backend')!!}/js/plugins/sweetalert/sweetalert.min.js"></script>
 
     <!-- Custom and plugin javascript -->
     <script src="{{asset('assets/backend')}}/js/inspinia.js"></script>
     <script src="{{asset('assets/backend')}}/js/plugins/pace/pace.min.js"></script>
+    <script src="{{asset('assets/backend')}}/js/plugins/toastr/toastr.min.js"></script>
+    <script>
+        @if(Session::has('success'))
+          swal({title: "Success",
+                type: 'success',
+                text: "{{Session::get('success')}} !",
+                timer: 3000,
+                showConfirmButton: true });
+          @endif
 
+          @if(Session::has('warning'))
+            swal({title: "SURE ?",
+                  type: 'warning',
+                  text: "{{Session::get('success')}} !",
+                  timer: 3000,
+                  showConfirmButton: true });
+          @endif
+    </script>
+    @yield('footer')
 
 </body>
 

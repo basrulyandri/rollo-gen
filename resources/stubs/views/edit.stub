@@ -1,0 +1,35 @@
+@extends('layouts.backend.master')
+
+@section('content')
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-4">
+        <h2>Edit {{${{modelNameSingularLowerCase}}->name}}</h2>
+       <ol class="breadcrumb">
+          <li>
+              <a href="{{route('{{modelNamePluralLowerCase}}.index')}}">{{modelNamePluralUpperCaseFirstLetter}}</a>
+          </li>          
+          <li>
+              <a href="{{route('{{modelNamePluralLowerCase}}.edit',${{modelNameSingularLowerCase}})}}">Edit</a>
+          </li>          
+      </ol>
+    </div>
+    <div class="col-sm-8">
+        
+    </div>
+</div>
+<div class="wrapper wrapper-content">
+	<div class="ibox float-e-margins">
+      <div class="ibox-title">
+          <h5>Edit {{modelNameSingularUpperCaseFirstLetter}}</h5>          
+      </div>
+      <div class="ibox-content no-padding">        
+            {!!Form::open(['route' =>['{{modelNamePluralLowerCase}}.update',${{modelNameSingularLowerCase}}],'method' => 'PATCH', 'class' => 'form-horizontal'])!!}
+              {{formEditHtml}}
+              <input type="submit" class="btn btn-primary" value="Update">
+            {!!Form::close()!!}          
+      </div>
+  </div>   
+</div>
+
+@stop

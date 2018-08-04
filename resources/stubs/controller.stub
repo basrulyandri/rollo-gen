@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\{{modelName}}Request;
+use Illuminate\Http\Request;
 use App\{{modelName}};
 
 class {{modelName}}Controller extends Controller
@@ -17,32 +17,42 @@ class {{modelName}}Controller extends Controller
         return view('{{modelNamePluralLowerCase}}.create');
     }
 
-    public function store({{modelName}}Request $request)
+    public function store(Request $request)
     {
         ${{modelNameSingularLowerCase}} = {{modelName}}::create($request->all());
 
-        return redirect()->back();
+        return redirect()->back()->with('success','Product has been created Successfully');
     }
 
-    public function show($id)
-    {
-        ${{modelNameSingularLowerCase}} = {{modelName}}::findOrFail($id);
+    public function show({{modelName}} ${{modelNameSingularLowerCase}})
+    {        
 
-        return response()->json(${{modelNameSingularLowerCase}});
+        return view('{{modelNamePluralLowerCase}}.show',compact(['{{modelNameSingularLowerCase}}']));
     }
 
-    public function update({{modelName}}Request $request, $id)
-    {
-        ${{modelNameSingularLowerCase}} = {{modelName}}::findOrFail($id);
+    public function edit({{modelName}} ${{modelNameSingularLowerCase}})
+    {        
+        return view('{{modelNamePluralLowerCase}}.edit',compact(['{{modelNameSingularLowerCase}}']));
+    }
+
+    public function update(Request $request, {{modelName}} ${{modelNameSingularLowerCase}})
+    {        
         ${{modelNameSingularLowerCase}}->update($request->all());
 
-        return response()->json(${{modelNameSingularLowerCase}}, 200);
+        return redirect()->route('{{modelNamePluralLowerCase}}.index')->with('success','Product has been updated Successfully');
     }
 
-    public function destroy($id)
+    public function destroy({{modelName}} ${{modelNameSingularLowerCase}})
     {
-        {{modelName}}::destroy($id);
+        ${{modelNameSingularLowerCase}}->delete();
 
-        return response()->json(null, 204);
+        return redirect()->route('{{modelNamePluralLowerCase}}.index')->with('success','Product has been deleted Successfully');
+    }
+
+    public function deleteAll(Request $request)
+    {
+        $ids = $request->ids;        
+        \DB::table("{{modelNamePluralLowerCase}}")->whereIn('id',explode(",",$ids))->delete();
+        return response()->json(['success'=>"{{modelNamePluralUpperCaseFirstLetter}} Deleted successfully."]);
     }
 }
