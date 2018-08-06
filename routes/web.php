@@ -156,9 +156,3 @@ Route::get('logout',[
 	'uses' => 'AuthController@logout',
 	'as' => 'auth.logout',
 ]);            
-
-
-Route::delete('products/deleteAll', 'ProductController@deleteAll')->name('products.deleteAll');
-Route::resource('products', 'ProductController');
-Route::delete('orders/deleteAll', 'OrderController@deleteAll')->name('orders.deleteAll');
-Route::resource('orders', 'OrderController');

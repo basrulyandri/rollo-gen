@@ -12,15 +12,14 @@ class CrudGenerator extends Command
      * @var string
      */
     protected $signature = 'crud:generate
-    {name : Class (singular) for example User}';
+    {name : Class (singular) for example User} {--indo}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create CRUD Operations';
-    protected $isIndo = false;
+    protected $description = 'Create CRUD Operations';    
 
     /**
      * Create a new command instance.
@@ -42,10 +41,17 @@ class CrudGenerator extends Command
         return file_get_contents(resource_path("stubs/$type.stub"));
     }
 
-    protected function model($name){
-        $columns = \DB::select('SHOW COLUMNS FROM '.strtolower(str_plural($name)));
+    protected function model($name,$indo){
+        if($indo){            
+            $columns = \DB::select('SHOW COLUMNS FROM '.strtolower($name));
+            $tableName = 'protected $table= "'.$name.'";';
+        }else{            
+            $tableName = '';            
+            $columns = \DB::select('SHOW COLUMNS FROM '.strtolower(str_plural($name)));
+        }
 
         $fillableField = '';
+
 
         foreach($columns as $key => $column){
             if(!in_array($column->Field,['id','created_at','updated_at','deleted_at'])){
@@ -54,15 +60,15 @@ class CrudGenerator extends Command
         }
 
         $modelTemplate = str_replace(
-            ['{{modelName}}','{{fillableField}}'],
-            [$name,$fillableField],
+            ['{{modelName}}','{{fillableField}}','{{tableName}}'],
+            [$name,$fillableField,$tableName],
             $this->getStub('Model')
         );
 
         file_put_contents(app_path("/{$name}.php"), $modelTemplate);
     }
 
-    protected function controller($name){
+    protected function controller($name,$indo){
         $controllerTemplate = str_replace(
             [
                 '{{modelName}}',
@@ -82,8 +88,12 @@ class CrudGenerator extends Command
         file_put_contents(app_path("/Http/Controllers/{$name}Controller.php"), $controllerTemplate);
     }
 
-    protected function views($name){
-        $columns = \DB::select('SHOW COLUMNS FROM '.strtolower(str_plural($name)));
+    protected function views($name,$indo){
+        if($indo){
+            $columns = \DB::select('SHOW COLUMNS FROM '.strtolower($name));
+        }else{
+            $columns = \DB::select('SHOW COLUMNS FROM '.strtolower(str_plural($name)));
+        }
         $tableHeadingHtml = '<th><input type="checkbox" id="checkAll"></th>';
         $tableBodyHtml = '';
         $formAddHtml = '';
@@ -230,7 +240,7 @@ class CrudGenerator extends Command
         file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/edit.blade.php"),$editCreateTemplate);
     }
 
-    protected function request($name){
+    protected function request($name,$indo){
         $requestTemplate = str_replace(
             ['{{modelName}}'],
             [$name],
@@ -245,10 +255,18 @@ class CrudGenerator extends Command
 
     public function handle()
     {
-        $this->controller($name);
-        $this->views($name);
-        $this->model($name);
-        $this->request($name);
+        $name = $this->argument('name');
+
+        if ($this->option('indo')) {
+            $indo = true;
+        } else {
+            $indo = false;
+        }
+
+        $this->controller($name,$indo);
+        $this->views($name,$indo);
+        $this->model($name,$indo);
+        $this->request($name,$indo);
 
         \File::append(base_path('routes/web.php'), '
 Route::delete(\'' . str_plural(strtolower($name)) . "/deleteAll', '{$name}Controller@deleteAll')->name('".str_plural(strtolower($name)).".deleteAll');");
