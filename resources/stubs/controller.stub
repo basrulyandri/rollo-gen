@@ -52,7 +52,7 @@ class {{modelName}}Controller extends Controller
     public function deleteAll(Request $request)
     {
         $ids = $request->ids;        
-        \DB::table("{{modelNamePluralLowerCase}}")->whereIn('id',explode(",",$ids))->delete();
+        \DB::table("{{tableName}}")->whereIn('id',explode(",",$ids))->delete();
         return response()->json(['success'=>"{{modelNamePluralUpperCaseFirstLetter}} Deleted successfully."]);
     }
 }

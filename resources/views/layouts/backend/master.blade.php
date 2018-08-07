@@ -176,19 +176,11 @@
     <script src="{{asset('assets/backend')}}/js/plugins/toastr/toastr.min.js"></script>
     <script>
         @if(Session::has('success'))
-          swal({title: "Success",
-                type: 'success',
-                text: "{{Session::get('success')}} !",
-                timer: 3000,
-                showConfirmButton: true });
+          toastr.success('{{Session::get("success")}}', 'Success');
           @endif
 
           @if(Session::has('warning'))
-            swal({title: "SURE ?",
-                  type: 'warning',
-                  text: "{{Session::get('success')}} !",
-                  timer: 3000,
-                  showConfirmButton: true });
+            toastr.success('{{Session::get("error")}}', 'Warning');
           @endif
     </script>
     @yield('footer')

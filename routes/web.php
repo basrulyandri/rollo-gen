@@ -156,3 +156,40 @@ Route::get('logout',[
 	'uses' => 'AuthController@logout',
 	'as' => 'auth.logout',
 ]);            
+
+Route::delete('pembayarans/deleteAll', 'PembayaranController@deleteAll')->name('pembayarans.deleteAll');
+Route::resource('pembayarans', 'PembayaranController');
+Route::delete('pembayarans/deleteAll', 'PembayaranController@deleteAll')->name('pembayarans.deleteAll');
+Route::resource('pembayarans', 'PembayaranController');
+Route::delete('products/deleteAll', 'ProductController@deleteAll')->name('products.deleteAll');
+Route::resource('products', 'ProductController');
+Route::delete('pembayarans/deleteAll', 'PembayaranController@deleteAll')->name('pembayarans.deleteAll');
+Route::resource('pembayarans', 'PembayaranController');
+Route::delete('pembayarans/deleteAll', 'PembayaranController@deleteAll')->name('pembayarans.deleteAll');
+Route::resource('pembayarans', 'PembayaranController');
+Route::delete('pembayarans/deleteAll', 'PembayaranController@deleteAll')->name('pembayarans.deleteAll');
+Route::resource('pembayarans', 'PembayaranController');
+Route::delete('pembayarans/deleteAll', 'PembayaranController@deleteAll')->name('pembayarans.deleteAll');
+Route::resource('pembayarans', 'PembayaranController');
+Route::delete('pembayarans/deleteAll', 'PembayaranController@deleteAll')->name('pembayarans.deleteAll');
+Route::resource('pembayarans', 'PembayaranController');
+Route::delete('products/deleteAll', 'ProductController@deleteAll')->name('products.deleteAll');
+Route::resource('products', 'ProductController');
+Route::delete('products/deleteAll', 'ProductController@deleteAll')->name('products.deleteAll');
+Route::resource('products', 'ProductController');
+Route::delete('pembayarans/deleteAll', 'PembayaranController@deleteAll')->name('pembayarans.deleteAll');
+Route::resource('pembayarans', 'PembayaranController');
+Route::delete('pembayarans/deleteAll', 'PembayaranController@deleteAll')->name('pembayarans.deleteAll');
+Route::resource('pembayarans', 'PembayaranController');
+Route::delete('pembayarans/deleteAll', 'PembayaranController@deleteAll')->name('pembayarans.deleteAll');
+Route::resource('pembayarans', 'PembayaranController');
+Route::delete('pembayarans/deleteAll', 'PembayaranController@deleteAll')->name('pembayarans.deleteAll');
+Route::resource('pembayarans', 'PembayaranController');
+Route::delete('products/deleteAll', 'ProductController@deleteAll')->name('products.deleteAll');
+Route::resource('products', 'ProductController');
+Route::delete('categories/deleteAll', 'CategoryController@deleteAll')->name('categories.deleteAll');
+Route::resource('categories', 'CategoryController');
+Route::delete('categories/deleteAll', 'CategoryController@deleteAll')->name('categories.deleteAll');
+Route::resource('categories', 'CategoryController');
+Route::delete('categories/deleteAll', 'CategoryController@deleteAll')->name('categories.deleteAll');
+Route::resource('categories', 'CategoryController');

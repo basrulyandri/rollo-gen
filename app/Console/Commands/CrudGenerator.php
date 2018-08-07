@@ -69,21 +69,44 @@ class CrudGenerator extends Command
     }
 
     protected function controller($name,$indo){
-        $controllerTemplate = str_replace(
-            [
-                '{{modelName}}',
-                '{{modelNamePluralLowerCase}}',
-                '{{modelNameSingularLowerCase}}',
-                '{{modelNamePluralUpperCaseFirstLetter}}',
-            ],
-            [
-                $name,
-                strtolower(str_plural($name)),
-                strtolower($name),
-                ucfirst(str_plural($name)),
-            ],
-            $this->getStub('Controller')
-        );
+        if($indo){
+            $controllerTemplate = str_replace(
+                [
+                    '{{modelName}}',
+                    '{{modelNamePluralLowerCase}}',
+                    '{{modelNameSingularLowerCase}}',
+                    '{{modelNamePluralUpperCaseFirstLetter}}',
+                    '{{tableName}}'
+                ],
+                [
+                    $name,
+                    strtolower(str_plural($name)),
+                    strtolower($name),
+                    ucfirst($name),
+                    strtolower($name),
+                ],
+                $this->getStub('Controller')
+            );            
+
+        } else {
+            $controllerTemplate = str_replace(
+                [
+                    '{{modelName}}',
+                    '{{modelNamePluralLowerCase}}',
+                    '{{modelNameSingularLowerCase}}',
+                    '{{modelNamePluralUpperCaseFirstLetter}}',
+                    '{{tableName}}'
+                ],
+                [
+                    $name,
+                    strtolower(str_plural($name)),
+                    strtolower($name),
+                    ucfirst(str_plural($name)),
+                    strtolower(str_plural($name))
+                ],
+                $this->getStub('Controller')
+            );            
+        }
 
         file_put_contents(app_path("/Http/Controllers/{$name}Controller.php"), $controllerTemplate);
     }
@@ -91,9 +114,12 @@ class CrudGenerator extends Command
     protected function views($name,$indo){
         if($indo){
             $columns = \DB::select('SHOW COLUMNS FROM '.strtolower($name));
+            $foreach = '@foreach($'.$name.' as ${{modelNameSingularLowerCase}})';
         }else{
             $columns = \DB::select('SHOW COLUMNS FROM '.strtolower(str_plural($name)));
         }
+
+
         $tableHeadingHtml = '<th><input type="checkbox" id="checkAll"></th>';
         $tableBodyHtml = '';
         $formAddHtml = '';
@@ -166,78 +192,151 @@ class CrudGenerator extends Command
             </td>';
 
         $tableShowDataHtml .= '</table>';
+        if($indo){
+            $viewIndexTemplate = str_replace(
+                [
+                    '{{modelName}}',
+                    '{{modelNamePluralUpperCaseFirstLetter}}',
+                    '{{modelNamePluralLowerCase}}',
+                    '{{modelNameSingularLowerCase}}',
+                    '{{modelNameSingularUpperCaseFirstLetter}}',
+                    '{{tableHeadingHtml}}',
+                    '{{tableBodyHtml}}',
+                    '{{formAddHtml}}',                
+                ],
+                [
+                    $name,
+                    ucfirst($name),
+                    strtolower(str_plural($name)),
+                    strtolower($name),
+                    ucfirst($name),
+                    $tableHeadingHtml,
+                    $tableBodyHtml,
+                    $formAddHtml,                
+                ],
+                file_get_contents(resource_path("/stubs/views/index.stub"))
+            );
 
-        $viewCreateTemplate = str_replace(
-            [
-                '{{modelName}}',
-                '{{modelNamePluralUpperCaseFirstLetter}}',
-                '{{modelNamePluralLowerCase}}',
-                '{{modelNameSingularLowerCase}}',
-                '{{modelNameSingularUpperCaseFirstLetter}}',
-                '{{tableHeadingHtml}}',
-                '{{tableBodyHtml}}',
-                '{{formAddHtml}}',                
-            ],
-            [
-                $name,
-                ucfirst(str_plural($name)),
-                strtolower(str_plural($name)),
-                strtolower($name),
-                ucfirst($name),
-                $tableHeadingHtml,
-                $tableBodyHtml,
-                $formAddHtml,                
-            ],
-            file_get_contents(resource_path("/stubs/views/index.stub"))
-        );
+            $viewShowTemplate = str_replace(
+                [
+                    '{{modelName}}',
+                    '{{modelNamePluralUpperCaseFirstLetter}}',
+                    '{{modelNamePluralLowerCase}}',
+                    '{{modelNameSingularLowerCase}}',
+                    '{{modelNameSingularUpperCaseFirstLetter}}',                
+                    '{{tableShowDataHtml}}'
+                ],
+                [
+                    $name,
+                    ucfirst($name),
+                    strtolower(str_plural($name)),
+                    strtolower($name),
+                    ucfirst($name),                
+                    $tableShowDataHtml,
+                ],
+                file_get_contents(resource_path("/stubs/views/show.stub"))
+            );
 
-        $showCreateTemplate = str_replace(
-            [
-                '{{modelName}}',
-                '{{modelNamePluralUpperCaseFirstLetter}}',
-                '{{modelNamePluralLowerCase}}',
-                '{{modelNameSingularLowerCase}}',
-                '{{modelNameSingularUpperCaseFirstLetter}}',                
-                '{{tableShowDataHtml}}'
-            ],
-            [
-                $name,
-                ucfirst(str_plural($name)),
-                strtolower(str_plural($name)),
-                strtolower($name),
-                ucfirst($name),                
-                $tableShowDataHtml,
-            ],
-            file_get_contents(resource_path("/stubs/views/show.stub"))
-        );
+            $viewEditTemplate = str_replace(
+                [
+                    '{{modelName}}',
+                    '{{modelNamePluralUpperCaseFirstLetter}}',
+                    '{{modelNamePluralLowerCase}}',
+                    '{{modelNameSingularLowerCase}}',
+                    '{{modelNameSingularUpperCaseFirstLetter}}',                
+                    '{{formEditHtml}}'
+                ],
+                [
+                    $name,
+                    ucfirst($name),
+                    strtolower(str_plural($name)),
+                    strtolower($name),
+                    ucfirst($name),                
+                    $formEditHtml,
+                ],
+                file_get_contents(resource_path("/stubs/views/edit.stub"))
+            );
 
-        $editCreateTemplate = str_replace(
-            [
-                '{{modelName}}',
-                '{{modelNamePluralUpperCaseFirstLetter}}',
-                '{{modelNamePluralLowerCase}}',
-                '{{modelNameSingularLowerCase}}',
-                '{{modelNameSingularUpperCaseFirstLetter}}',                
-                '{{formEditHtml}}'
-            ],
-            [
-                $name,
-                ucfirst(str_plural($name)),
-                strtolower(str_plural($name)),
-                strtolower($name),
-                ucfirst($name),                
-                $formEditHtml,
-            ],
-            file_get_contents(resource_path("/stubs/views/edit.stub"))
-        );
+            if(!file_exists($path = resource_path('/views/'.strtolower(str_plural($name)))))
+                mkdir($path, 0777, true);
+
+            file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/index.blade.php"),$viewIndexTemplate);
+            file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/show.blade.php"),$viewShowTemplate);
+            file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/edit.blade.php"),$viewEditTemplate);
+
+        }else {
+            $viewIndexTemplate = str_replace(
+                [
+                    '{{modelName}}',
+                    '{{modelNamePluralUpperCaseFirstLetter}}',
+                    '{{modelNamePluralLowerCase}}',
+                    '{{modelNameSingularLowerCase}}',
+                    '{{modelNameSingularUpperCaseFirstLetter}}',
+                    '{{tableHeadingHtml}}',
+                    '{{tableBodyHtml}}',
+                    '{{formAddHtml}}',                
+                ],
+                [
+                    $name,
+                    ucfirst(str_plural($name)),
+                    strtolower(str_plural($name)),
+                    strtolower($name),
+                    ucfirst($name),
+                    $tableHeadingHtml,
+                    $tableBodyHtml,
+                    $formAddHtml,                
+                ],
+                file_get_contents(resource_path("/stubs/views/index.stub"))
+            );
+
+            $viewShowTemplate = str_replace(
+                [
+                    '{{modelName}}',
+                    '{{modelNamePluralUpperCaseFirstLetter}}',
+                    '{{modelNamePluralLowerCase}}',
+                    '{{modelNameSingularLowerCase}}',
+                    '{{modelNameSingularUpperCaseFirstLetter}}',                
+                    '{{tableShowDataHtml}}'
+                ],
+                [
+                    $name,
+                    ucfirst(str_plural($name)),
+                    strtolower(str_plural($name)),
+                    strtolower($name),
+                    ucfirst($name),                
+                    $tableShowDataHtml,
+                ],
+                file_get_contents(resource_path("/stubs/views/show.stub"))
+            );
+
+            $viewEditTemplate = str_replace(
+                [
+                    '{{modelName}}',
+                    '{{modelNamePluralUpperCaseFirstLetter}}',
+                    '{{modelNamePluralLowerCase}}',
+                    '{{modelNameSingularLowerCase}}',
+                    '{{modelNameSingularUpperCaseFirstLetter}}',                
+                    '{{formEditHtml}}'
+                ],
+                [
+                    $name,
+                    ucfirst(str_plural($name)),
+                    strtolower(str_plural($name)),
+                    strtolower($name),
+                    ucfirst($name),                
+                    $formEditHtml,
+                ],
+                file_get_contents(resource_path("/stubs/views/edit.stub"))
+            );            
+             if(!file_exists($path = resource_path('/views/'.strtolower(str_plural($name)))))
+                mkdir($path, 0777, true);
+
+            file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/index.blade.php"),$viewIndexTemplate);
+            file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/show.blade.php"),$viewShowTemplate);
+            file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/edit.blade.php"),$viewEditTemplate);
+        }
 
 
-         if(!file_exists($path = resource_path('/views/'.strtolower(str_plural($name)))))
-            mkdir($path, 0777, true);
-
-        file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/index.blade.php"),$viewCreateTemplate);
-        file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/show.blade.php"),$showCreateTemplate);
-        file_put_contents(resource_path('/views/'.strtolower(str_plural($name))."/edit.blade.php"),$editCreateTemplate);
     }
 
     protected function request($name,$indo){
@@ -266,7 +365,7 @@ class CrudGenerator extends Command
         $this->controller($name,$indo);
         $this->views($name,$indo);
         $this->model($name,$indo);
-        $this->request($name,$indo);
+        //$this->request($name,$indo);
 
         \File::append(base_path('routes/web.php'), '
 Route::delete(\'' . str_plural(strtolower($name)) . "/deleteAll', '{$name}Controller@deleteAll')->name('".str_plural(strtolower($name)).".deleteAll');");
